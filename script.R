@@ -1,180 +1,52 @@
-
+options(scipen = 9999)
 library(readxl)
-Dados14 <- read_excel("C:/Users/carol/OneDrive/Doutorado/Disciplinas/2024.2/Métodos Quantitativos II/Trabalho/Gamificação/Base/Dados14.xlsx")
-View(Dados14)
-
-#Novo Dataframe com as variáveis de interesse
-
-novo_df <- Dados14[, c(2:9,12,23,27,30,34,45,49,52)]
-View(novo_df)
-
-# Exibindo o novo data frame
-print(novo_df)
-
-#Correlação
-novocor_df <- Dados14[, c(2:3,12,23,27,30,34,45,49,52)]
-
-#Pearson
-cor(novocor_df)
-
-#Spearman
-cor(novocor_df, method = "spearman")
-
-#Correlação incluindo dimensões, notas e estilos de aprendizagem
-novocor_df <- Dados14[, c(2:3,9, 12,23,27,30,34,45,49,52)]
-df_acomodador <- subset(novocor_df,Estilo==1)
-cor(df_acomodador)
-
-#Fazer a correlação para os outros estilos de aprendizagem
-
-
-##kmeans
-
-set.seed(123) #para manter os mesmos resultados e não mudar os grupos
-#Desempenho game
-gruposgame <- kmeans(novo_df$game,centers = 2)
-gruposgame
-gruposgame$cluster[gruposgame$cluster==2]=0 #baixo desempenho
-
-novo_df$desempenhogame = gruposgame$cluster #criar coluna desempenhogame
-
-set.seed(123)
-#Desempenho prova
-gruposteorica <- kmeans(novo_df$teorica,centers = 2)
-gruposteorica
-gruposteorica$cluster[gruposteorica$cluster==2]=0 #baixo desempenho
-
-novo_df$desempenhoteorica = gruposteorica$cluster
-
-#Regressão logística 
-
-summary()
-Logit_game <- glm(desempenhogame ~ apr_jogo + eng_jogo + ime_jogo + des_jogo, data=novo_df, family = binomial)
-summary(Logit_game)
-
-Logit_teorica <- glm(desempenhoteorica ~ apr_prova + eng_prova + ime_prova + des_prova, data=novo_df, family = binomial)
-summary(Logit_teorica)
-
-#Regressão
-
-Lm_game <- lm(desempenhogame ~ apr_jogo + eng_jogo + ime_jogo + des_jogo, data=novo_df)
-summary(Lm_game)
-
-Lm_teorica <- lm(desempenhoteorica ~ apr_prova + eng_prova + ime_prova + des_prova, data=novo_df)
-summary(Lm_teorica)
-
-#Random Forest
-
-library(caTools)
-set.seed(1)
-
-divisao=sample.split(novo_df$desempenhogame,SplitRatio = 0.75)
-treinamento=subset(novo_df,divisao==T)
-teste=subset(novo_df,divisao==F)
-
-treinamento$desempenhogame=as.factor(treinamento$desempenhogame);teste$desempenhogame=as.factor(teste$desempenhogame)
-
-set.seed(1)
-ctrl=trainControl(method="cv",
-                  number=1000)
-FitRF= train(
-  desempenhogame ~ apr_jogo + eng_jogo + ime_jogo + des_jogo,
-  method="rf",
-  preProcess=c("scale"),
-  trControl=ctrl,
-  data=treinamento,
-  importance=T
-)
-
-RFclass=predict(FitRF, newdata=teste)
-RFclasst=predict(FitRF, newdata=treinamento)
-
-confusionMatrix(RFclass,teste$desempenhogame,positive = "1")
-RFclassprob=predict(FitRF, newdata=teste, type="prob")
-RFrocobject=roc(teste$desempenhogame, RFclassprob[,2])
-plot.roc(RFrocobject)
-plot(varImp(FitRF))
-
-13/14
-
-##Dados unificados
-
-library(readxl)
-Dados14 <- Dados14 <- read_excel("C:/Users/carol/OneDrive/Doutorado/Disciplinas/2024.2/Métodos Quantitativos II/Trabalho/Gamificação/Base/Dados14.xlsx", 
-                                 sheet = "Dados2")
-View(Dados14)
-
-
-#Dataframe
-new_df <- Dados14[, c(2:6)]
-View(new_df)
-
-#Dataframe sem aprendizagem
-df_dados <- Dados14[, c(2,4:6)]
-View(df_dados)
-
-
-
-#Regressão Múltipla
-
-Lm_geral <- lm(game ~ apr + eng + ime + des, data=new_df)
-summary(Lm_geral)
-
-
-##kmeans
-
-set.seed(123) #para manter os mesmos resultados e não mudar os grupos
-#Desempenho game
-grupos <- kmeans(df_dados$game,centers = 2)
-grupos
-grupos$cluster[grupos$cluster==2]=0 #baixo desempenho
-
-df_dados$grupos = grupos$cluster #criar coluna desempenhogame
-
-df_dados
-View(df_dados)
-
-#Estatística descritiva com base nos clusters
-
-#cluster 1 - Alto desempenho
-summary(df_dados[df_dados$grupos == 1,1:4])
-sapply(df_dados[df_dados$grupos == 1, 1:4], sd, na.rm = TRUE)
-sapply(df_dados[df_dados$grupos == 1, 1:4], quantile, na.rm = TRUE)
-
-#cluster 0 - Baixo desempenho
-summary(df_dados[df_dados$grupos == 0,1:4])
-sapply(df_dados[df_dados$grupos == 0, 1:4], sd, na.rm = TRUE)
-sapply(df_dados[df_dados$grupos == 0, 1:4], quantile, na.rm = TRUE)
-
-
-
-#Regressão Logística
-
-Logit_nota <- glm(grupos ~ apr + eng + ime + des, data=new_df, family = binomial)
-summary(Logit_nota)
-
-#Regressão Logística sem aprendizagem
-Logit_nota <- glm(grupos ~ eng + ime + des, data=df_dados, family = binomial)
-summary(Logit_nota)
-
-
-#Random Forest
-
 library(caTools)
 library(caret)
 library(pROC)
-set.seed(1)
+library(e1071)
+library(ipred)
 
-divisao=sample.split(new_df$grupos,SplitRatio = 0.75)
-treinamento=subset(new_df,divisao==T)
-teste=subset(new_df,divisao==F)
+dados <- read_excel("dados.xlsx", sheet = "dados")
 
-treinamento$grupos=as.factor(treinamento$grupos);teste$grupos=as.factor(teste$grupos)
+set.seed(123)
 
-set.seed(1)
-ctrl=trainControl(method="cv")
+
+#### MODELO NÃO SUPERVISIONADO K-MEANS #### 
+grupos_aval <- kmeans(dados$aval,centers = 2)
+
+grupos_aval$cluster[grupos_aval$cluster==2]=0 #baixo desempenho passa a receber valor de 0
+
+dados$avalcluster = grupos_aval$cluster #Inputando uma nova coluna no df dados
+
+#### MODELO LINEAR NORMAL #### 
+
+linear_normal <- lm(aval ~ eng + ime + des, data=dados)
+summary(linear_normal)
+
+#### REGRESSÃO LOGÍSTICA #### 
+
+logit <- glm(avalcluster ~ eng + ime + des, data=dados, family = binomial)
+summary(logit)
+
+#### APRENDIZADO DE MÁQUINA SUPERVISIONADO #### 
+
+#Fazendo a divisão (treino: 0.75; teste: 0.25)
+
+set.seed(123)
+
+divisao=sample.split(dados$avalcluster,SplitRatio = 0.75)
+treinamento=subset(dados,divisao==T)
+teste=subset(dados,divisao==F)
+
+treinamento$avalcluster=as.factor(treinamento$avalcluster)
+teste$avalcluster=as.factor(teste$avalcluster)
+
+### RANDOM FOREST ### 
+
+ctrl=trainControl(method="cv",
+                  number=10)
 FitRF= train(
-  grupos ~ eng + ime + des,
+  avalcluster ~ eng + ime + des,
   method="rf",
   preProcess=c("scale"),
   trControl=ctrl,
@@ -182,56 +54,201 @@ FitRF= train(
   importance=T
 )
 
-RFclass=predict(FitRF, newdata=teste)
-RFclasst=predict(FitRF, newdata=treinamento)
-
-confusionMatrix(RFclass,teste$grupos,positive = "1")
-RFclassprob=predict(FitRF, newdata=teste, type="prob")
-RFrocobject=roc(teste$grupos, RFclassprob[,2])
+#TREINAMENTO
+RFclass=predict(FitRF, newdata=treinamento)
+confusionMatrix(RFclass,treinamento$avalcluster,positive = "1")
+RFclassprob=predict(FitRF, newdata=treinamento, type="prob")
+RFrocobject=roc(treinamento$avalcluster, RFclassprob[,2])
 plot.roc(RFrocobject)
 plot(varImp(FitRF))
+auc(RFrocobject)
+
+#TESTE
+RFclass=predict(FitRF, newdata=teste)
+confusionMatrix(RFclass,teste$avalcluster,positive = "1")
+RFclassprob=predict(FitRF, newdata=teste, type="prob")
+RFrocobject=roc(teste$avalcluster, RFclassprob[,2])
+plot.roc(RFrocobject)
+plot(varImp(FitRF))
+auc(RFrocobject)
+
+### KNN ### 
+
+ctrl=trainControl(method="repeatedcv",
+                  number=10)
+FitKNN= train(
+  avalcluster ~ eng + ime + des,
+  method="knn",
+  preProcess=c("scale"),
+  trControl=ctrl,
+  data=treinamento,
+  tuneLength = 20
+)
+
+#TREINAMENTO
+KNNclass=predict(FitKNN, newdata=treinamento)
+confusionMatrix(KNNclass,treinamento$avalcluster,positive = "1")
+KNNclassprob=predict(FitKNN, newdata=treinamento, type="prob")
+KNNrocobject=roc(treinamento$avalcluster, KNNclassprob[,2])
+plot.roc(KNNrocobject)
+auc(KNNrocobject)
+
+#TESTE
+KNNclass=predict(FitKNN, newdata=teste)
+confusionMatrix(KNNclass,teste$avalcluster,positive = "1")
+KNNclassprob=predict(FitKNN, newdata=teste, type="prob")
+KNNrocobject=roc(teste$avalcluster, KNNclassprob[,2])
+plot.roc(KNNrocobject)
+auc(KNNrocobject)
 
 
+### NAIVE BAYES ### 
 
-#APLICAÇÃO KNN (K-Nearest Neighbor, ou K Vizinhos Mais Próximos)
-#-----------------------------------------------
+ctrl=trainControl(method="cv",
+                  number=10)
 
+Grid = data.frame(usekernel=TRUE,laplace = 0,adjust=1)
+FitNB= train(
+  avalcluster ~ eng + ime + des,
+  method="naive_bayes",
+  preProcess=c("scale"),
+  trControl=ctrl,
+  data=treinamento,
+  tuneGrid = Grid
+)
 
+#TREINAMENTO
+nbclass=predict(FitNB, newdata=treinamento)
+confusionMatrix(nbclass,treinamento$avalcluster,positive = "1")
+nbclassprob=predict(FitNB, newdata=treinamento, type="prob")
+nbrocobject=roc(treinamento$avalcluster, nbclassprob[,2])
+plot.roc(nbrocobject)
+auc(nbrocobject)
 
-ctrl <- trainControl(method="repeatedcv",
-                     repeats = 3) 
-
-knnFit <- train(dZSCORE ~ ., 
-                data = mettreinamento, 
-                method = "knn", trControl = ctrl, 
-                preProcess = c("scale"), 
-                tuneLength = 20)
-
-
-knnclass=predict(knnFit, newdata=metteste)
-#-----------------------------------------------
-#     VN    FP
-#     FN    VP
-#-----------------------------------------------
-
-confusionMatrix(knnclass,metteste$dZSCORE, positive = "1")
-knnclassprob=predict(knnFit, newdata=metteste, type="prob")
-rocobject=roc(metteste$dZSCORE, knnclassprob[,2])
-plot.roc(rocobject)
-
-auc(rocobject)
-
-#-----------------------------------------------
-#     OUTRAS MÉTRICAS DE AVALIAÇÃO - KNN
-#-----------------------------------------------
-
-predicttest=as.numeric(knnclass);
-original=as.numeric(metteste$dZSCORE);
-
-MAE(predicttest,original)
-RMSE(predicttest,original)
+#TESTE
+nbclass=predict(FitNB, newdata=teste)
+confusionMatrix(nbclass,teste$avalcluster,positive = "1")
+nbclassprob=predict(FitNB, newdata=teste, type="prob")
+nbrocobject=roc(teste$avalcluster, KNNclassprob[,2])
+plot.roc(nbrocobject)
+auc(nbrocobject)
 
 
+### LOGIT ### 
+
+Fitlogit= train(
+  avalcluster ~ eng + ime + des,
+  method="glm",
+  preProcess=c("scale"),
+  family="binomial",
+  data=treinamento
+)
+
+#TREINAMENTO
+logitclass=predict(Fitlogit, newdata=treinamento)
+confusionMatrix(logitclass,treinamento$avalcluster,positive = "1")
+logitclassprob=predict(Fitlogit, newdata=treinamento, type="prob")
+logitrocobject=roc(treinamento$avalcluster, logitclassprob[,2])
+plot.roc(logitrocobject)
+auc(logitrocobject)
+
+#TESTE
+logitclass=predict(Fitlogit, newdata=teste)
+confusionMatrix(logitclass,teste$avalcluster,positive = "1")
+logitclassprob=predict(Fitlogit, newdata=teste, type="prob")
+logitrocobject=roc(teste$avalcluster, logitclassprob[,2])
+plot.roc(logitrocobject)
+auc(logitrocobject)
+
+### SVM LINEAR ### 
+
+svmfit=svm(avalcluster ~ eng + ime + des, 
+           data=treinamento, 
+           scale=T, 
+           type= "C-classification", 
+           kernel="linear")
 
 
+#TREINAMENTO
+svmclass=predict(svmfit, newdata=treinamento)
+confusionMatrix(svmclass,treinamento$avalcluster,positive = "1")
+svmclassprob=predict(svmfit, newdata=treinamento, type="prob")
+svmrocobject=roc(treinamento$avalcluster, as.numeric(svmclassprob))
+plot.roc(svmrocobject)
+auc(svmrocobject)
+
+#TESTE
+svmclass=predict(svmfit, newdata=teste)
+confusionMatrix(svmclass,teste$avalcluster,positive = "1")
+svmclassprob=predict(svmfit, newdata=teste, type="prob")
+svmrocobject=roc(teste$avalcluster, as.numeric(svmclassprob))
+plot.roc(svmrocobject)
+auc(svmrocobject)
+
+### BAGGING ###
+
+baggedfit <- bagging(formula = avalcluster ~ eng + ime + des, 
+                     data = treinamento,
+                     coob = TRUE,
+                     scale=T)
+
+#TREINAMENTO
+
+baggedclass <- predict(object = baggedfit,    
+                       newdata = treinamento,  
+                       type = "class")
+
+confusionMatrix(data = baggedclass,       
+                reference = treinamento$avalcluster, positive = "1")
+
+baggedclassprob <- predict(object = baggedfit,    
+                           newdata = treinamento,  
+                           type = "prob")
+
+baggedrocobject=roc(treinamento$avalcluster, baggedclassprob[,2])
+plot.roc(baggedrocobject)
+auc(baggedrocobject)
+
+#TESTE
+baggedclass <- predict(object = baggedfit,    
+                       newdata = teste,  
+                       type = "class")
+
+confusionMatrix(data = baggedclass,       
+                reference = teste$avalcluster, positive = "1")
+
+baggedclassprob <- predict(object = baggedfit,    
+                           newdata = teste,  
+                           type = "prob")
+
+baggedrocobject=roc(teste$avalcluster, baggedclassprob[,2])
+plot.roc(baggedrocobject)
+auc(baggedrocobject)
+
+### GRADIENT BOOSTING MACHINE ###
+
+tc = trainControl(method = "cv", 
+                  number=10)
+
+fitboosted = train(avalcluster ~ eng + ime + des, 
+                   data=treinamento, 
+                   method="gbm", 
+                   trControl=tc,
+                   preProcess = c("scale"))
+
+#TREINAMENTO
+boostedclass=predict(fitboosted, newdata=treinamento)
+confusionMatrix(boostedclass,treinamento$avalcluster, positive = "1")
+boostedclassprob=predict(fitboosted, newdata=treinamento, type="prob")
+boostedrocobject=roc(treinamento$avalcluster, boostedclassprob[,2])
+plot.roc(boostedrocobject)
+auc(boostedrocobject)
+
+#TESTE
+boostedclass=predict(fitboosted, newdata=teste)
+confusionMatrix(boostedclass,teste$avalcluster, positive = "1")
+boostedclassprob=predict(fitboosted, newdata=teste, type="prob")
+boostedrocobject=roc(teste$avalcluster, boostedclassprob[,2])
+plot.roc(boostedrocobject)
+auc(boostedrocobject)
 
