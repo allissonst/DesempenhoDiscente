@@ -6,6 +6,7 @@ library(pROC)
 library(e1071)
 library(ipred)
 library(ROCR)
+library(MASS)
 
 dados <- read_excel("dados.xlsx", sheet = "dados")
 
@@ -29,6 +30,7 @@ summary(linear_normal)
 logit <- glm(avalcluster ~ eng + ime + des, data=dados, family = binomial)
 summary(logit)
 
+
 #### APRENDIZADO DE MÁQUINA SUPERVISIONADO #### 
 
 #Fazendo a divisão (treino: 0.75; teste: 0.25)
@@ -41,6 +43,40 @@ teste=subset(dados,divisao==F)
 
 treinamento$avalcluster=as.factor(treinamento$avalcluster)
 teste$avalcluster=as.factor(teste$avalcluster)
+
+
+#### ANÁLISE DISCRIMINANTE LINEAR ####
+adl = lda(avalcluster ~ eng + ime + des, 
+          data=treinamento)
+
+#TREINAMENTO
+adlclass=predict(adl, 
+                newdata=treinamento)$class
+confusionMatrix(adlclass,
+                treinamento$avalcluster,
+                positive = "1")
+adlclassprob=predict(adl, 
+                    newdata=treinamento, 
+                    type="prob")$posterior[,2]
+adlrocobject=roc(as.numeric(treinamento$avalcluster) -1, 
+                adlclassprob)
+plot.roc(adlrocobject)
+auc(adlrocobject)
+
+#TESTE
+adlclass=predict(adl, 
+                 newdata=teste)$class
+confusionMatrix(adlclass,
+                teste$avalcluster,
+                positive = "1")
+adlclassprob=predict(adl, 
+                     newdata=teste)$posterior[,2]
+adlrocobject=roc(as.numeric(teste$avalcluster) -1, 
+                 adlclassprob)
+plot.roc(adlrocobject)
+auc(adlrocobject)
+
+
 
 ### RANDOM FOREST ### 
 
