@@ -282,7 +282,7 @@ confusionMatrix(logitclass,
 
 logitclassprob=predict(Fitlogit, 
                        newdata=teste, 
-                       type = "response")
+                       type = "prob")
 
 logitrocobject=roc(teste$avalcluster, 
                    logitclassprob[,2])
