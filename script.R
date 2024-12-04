@@ -52,27 +52,34 @@ adl = lda(avalcluster ~ eng + ime + des,
 #TREINAMENTO
 adlclass=predict(adl, 
                 newdata=treinamento)$class
+
 confusionMatrix(adlclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 adlclassprob=predict(adl, 
                     newdata=treinamento, 
                     type="prob")$posterior[,2]
 adlrocobject=roc(as.numeric(treinamento$avalcluster) -1, 
                 adlclassprob)
+
 plot.roc(adlrocobject)
 auc(adlrocobject)
 
 #TESTE
 adlclass=predict(adl, 
                  newdata=teste)$class
+
 confusionMatrix(adlclass,
                 teste$avalcluster,
                 positive = "1")
+
 adlclassprob=predict(adl, 
                      newdata=teste)$posterior[,2]
+
 adlrocobject=roc(as.numeric(teste$avalcluster) -1, 
                  adlclassprob)
+
 plot.roc(adlrocobject)
 auc(adlrocobject)
 
@@ -82,6 +89,7 @@ auc(adlrocobject)
 
 ctrl=trainControl(method="cv",
                   number=10)
+
 FitRF= train(
   avalcluster ~ eng + ime + des,
   method="rf",
@@ -94,14 +102,18 @@ FitRF= train(
 #TREINAMENTO
 RFclass=predict(FitRF, 
                 newdata=treinamento)
+
 confusionMatrix(RFclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 RFclassprob=predict(FitRF, 
                     newdata=treinamento, 
                     type="prob")
+
 RFrocobject=roc(treinamento$avalcluster, 
                 RFclassprob[,2])
+
 plot.roc(RFrocobject)
 plot(varImp(FitRF))
 auc(RFrocobject)
@@ -109,14 +121,18 @@ auc(RFrocobject)
 #TESTE
 RFclass=predict(FitRF, 
                 newdata=teste)
+
 confusionMatrix(RFclass,
                 teste$avalcluster,
                 positive = "1")
+
 RFclassprob=predict(FitRF, 
                     newdata=teste, 
                     type="prob")
+
 RFrocobject=roc(teste$avalcluster, 
                 RFclassprob[,2])
+
 plot.roc(RFrocobject)
 plot(varImp(FitRF))
 auc(RFrocobject)
@@ -125,6 +141,7 @@ auc(RFrocobject)
 
 ctrl=trainControl(method="repeatedcv",
                   number=10)
+
 FitKNN= train(
   avalcluster ~ eng + ime + des,
   method="knn",
@@ -135,30 +152,39 @@ FitKNN= train(
 )
 
 #TREINAMENTO
+
 KNNclass=predict(FitKNN, 
                  newdata=treinamento)
+
 confusionMatrix(KNNclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 KNNclassprob=predict(FitKNN, 
                      newdata=treinamento, 
                      type="prob")
+
 KNNrocobject=roc(treinamento$avalcluster, 
                  KNNclassprob[,2])
+
 plot.roc(KNNrocobject)
 auc(KNNrocobject)
 
 #TESTE
 KNNclass=predict(FitKNN, 
                  newdata=teste)
+
 confusionMatrix(KNNclass,
                 teste$avalcluster,
                 positive = "1")
+
 KNNclassprob=predict(FitKNN, 
                      newdata=teste, 
                      type="prob")
+
 KNNrocobject=roc(teste$avalcluster, 
                  KNNclassprob[,2])
+
 plot.roc(KNNrocobject)
 auc(KNNrocobject)
 
@@ -168,9 +194,10 @@ auc(KNNrocobject)
 ctrl=trainControl(method="cv",
                   number=10)
 
-Grid = data.frame(usekernel=TRUE,
-                  laplace = 0,
-                  adjust=1)
+Grid = expand.grid(usekernel = TRUE,
+                   laplace = 0,
+                   adjust = 1)
+
 FitNB= train(
   avalcluster ~ eng + ime + des,
   method="naive_bayes",
@@ -183,28 +210,36 @@ FitNB= train(
 #TREINAMENTO
 nbclass=predict(FitNB, 
                 newdata=treinamento)
+
 confusionMatrix(nbclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 nbclassprob=predict(FitNB, 
                     newdata=treinamento, 
                     type="prob")
+
 nbrocobject=roc(treinamento$avalcluster, 
                 nbclassprob[,2])
+
 plot.roc(nbrocobject)
 auc(nbrocobject)
 
 #TESTE
 nbclass=predict(FitNB, 
                 newdata=teste)
+
 confusionMatrix(nbclass,
                 teste$avalcluster,
                 positive = "1")
+
 nbclassprob=predict(FitNB, 
                     newdata=teste, 
                     type="prob")
+
 nbrocobject=roc(teste$avalcluster, 
-                KNNclassprob[,2])
+                nbclassprob[,2])
+
 plot.roc(nbrocobject)
 auc(nbrocobject)
 
@@ -222,27 +257,36 @@ Fitlogit= train(
 #TREINAMENTO
 logitclass=predict(Fitlogit, 
                    newdata=treinamento)
+
 confusionMatrix(logitclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 logitclassprob=predict(Fitlogit, 
                        newdata=treinamento, 
                        type="prob")
+
 logitrocobject=roc(treinamento$avalcluster, 
                    logitclassprob[,2])
+
 plot.roc(logitrocobject)
 auc(logitrocobject)
 
 #TESTE
 logitclass=predict(Fitlogit, 
                    newdata=teste)
+
 confusionMatrix(logitclass,
                 teste$avalcluster,
                 positive = "1")
+
 logitclassprob=predict(Fitlogit, 
                        newdata=teste, 
-                       type="prob")
-logitrocobject=roc(teste$avalcluster, logitclassprob[,2])
+                       type = "response")
+
+logitrocobject=roc(teste$avalcluster, 
+                   logitclassprob[,2])
+
 plot.roc(logitrocobject)
 auc(logitrocobject)
 
@@ -252,34 +296,43 @@ svmfit=svm(avalcluster ~ eng + ime + des,
            data=treinamento, 
            scale=T, 
            type= "C-classification", 
-           kernel="linear")
+           kernel="linear",
+           probability = TRUE)
 
 
 #TREINAMENTO
 svmclass=predict(svmfit, 
                  newdata=treinamento)
+
 confusionMatrix(svmclass,
                 treinamento$avalcluster,
                 positive = "1")
+
 svmclassprob=predict(svmfit, 
                      newdata=treinamento, 
                      type="prob")
+
 svmrocobject=roc(treinamento$avalcluster, 
-                 as.numeric(svmclassprob))
+                as.numeric(svmclassprob))
+
 plot.roc(svmrocobject)
 auc(svmrocobject)
 
 #TESTE
 svmclass=predict(svmfit, 
                  newdata=teste)
+
 confusionMatrix(svmclass,
                 teste$avalcluster,
                 positive = "1")
+
 svmclassprob=predict(svmfit, 
                      newdata=teste, 
                      type="prob")
+
 svmrocobject=roc(teste$avalcluster, 
                  as.numeric(svmclassprob))
+
 plot.roc(svmrocobject)
 auc(svmrocobject)
 
@@ -324,6 +377,7 @@ baggedclassprob <- predict(object = baggedfit,
 
 baggedrocobject=roc(teste$avalcluster, 
                     baggedclassprob[,2])
+
 plot.roc(baggedrocobject)
 auc(baggedrocobject)
 
@@ -341,37 +395,49 @@ fitboosted = train(avalcluster ~ eng + ime + des,
 #TREINAMENTO
 boostedclass=predict(fitboosted, 
                      newdata=treinamento)
+
 confusionMatrix(boostedclass,
                 treinamento$avalcluster, 
                 positive = "1")
+
 boostedclassprob=predict(fitboosted, 
                          newdata=treinamento, 
                          type="prob")
+
 boostedrocobject=roc(treinamento$avalcluster, 
                      boostedclassprob[,2])
+
 plot.roc(boostedrocobject)
+
 auc(boostedrocobject)
 
 #TESTE
 boostedclass=predict(fitboosted, 
                      newdata=teste)
+
 confusionMatrix(boostedclass,
                 teste$avalcluster, 
                 positive = "1")
+
 boostedclassprob=predict(fitboosted, 
                          newdata=teste, 
                          type="prob")
+
 boostedrocobject=roc(teste$avalcluster, 
                      boostedclassprob[,2])
+
 plot.roc(boostedrocobject)
 auc(boostedrocobject)
 
+### GERAÇÃO DA CURVA ROC PARA O DESEMPENHO DOS TESTES ###
+
 preds_list <- list(KNNclassprob[,2], nbclassprob[,2], RFclassprob[,2], logitclassprob[,2], svmclassprob, boostedclassprob[,2], baggedclassprob[,2])
 
-# List of actual values (same for all)
+
 m <- length(preds_list)
 actuals_list <- rep(list(as.numeric(teste$avalcluster)), m)
-# Plot the ROC curves
+
+# Plotando a curva ROC
 pred <- prediction(predictions=preds_list, labels=actuals_list)
 rocs <- performance(pred, "tpr", "fpr")
 plot(rocs, col = as.list(1:m), main = "ROC curves for test data")
