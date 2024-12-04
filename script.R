@@ -7,6 +7,8 @@ library(e1071)
 library(ipred)
 library(ROCR)
 library(MASS)
+library(xgboost)
+library(gbm)   
 
 dados <- read_excel("dados.xlsx", sheet = "dados")
 
@@ -290,6 +292,8 @@ logitrocobject=roc(teste$avalcluster,
 plot.roc(logitrocobject)
 auc(logitrocobject)
 
+plot(varImp(Fitlogit))
+
 ### SVM LINEAR ### 
 
 svmfit=svm(avalcluster ~ eng + ime + des, 
@@ -336,6 +340,7 @@ svmrocobject=roc(teste$avalcluster,
 plot.roc(svmrocobject)
 auc(svmrocobject)
 
+
 ### BAGGING ###
 
 baggedfit <- bagging(formula = avalcluster ~ eng + ime + des, 
@@ -381,6 +386,22 @@ baggedrocobject=roc(teste$avalcluster,
 plot.roc(baggedrocobject)
 auc(baggedrocobject)
 
+# Importância direta do modelo final
+importancia <- varImp(baggedfit)
+valores_importancia <- importancia$Overall
+nomes_variaveis <- rownames(importancia)
+
+# Criar o gráfico de barras
+barplot(valores_importancia,
+        names.arg = nomes_variaveis,        # Nomes das variáveis
+        main = "Importance",
+        #xlab = "Variáveis",
+        #ylab = "Importância",
+        col = "steelblue",                  # Cor das barras
+        las = 2,                            # Rotacionar rótulos no eixo x (2 = vertical)
+        cex.names = 1)   
+
+
 ### GRADIENT BOOSTING MACHINE ###
 
 tc = trainControl(method = "cv", 
@@ -408,7 +429,6 @@ boostedrocobject=roc(treinamento$avalcluster,
                      boostedclassprob[,2])
 
 plot.roc(boostedrocobject)
-
 auc(boostedrocobject)
 
 #TESTE
@@ -428,6 +448,7 @@ boostedrocobject=roc(teste$avalcluster,
 
 plot.roc(boostedrocobject)
 auc(boostedrocobject)
+plot(varImp(fitboosted))
 
 ### GERAÇÃO DA CURVA ROC PARA O DESEMPENHO DOS TESTES ###
 
