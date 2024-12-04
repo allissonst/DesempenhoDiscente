@@ -33,7 +33,7 @@ summary(logit)
 
 #### APRENDIZADO DE MÁQUINA SUPERVISIONADO #### 
 
-#Fazendo a divisão (treino: 0.75; teste: 0.25)
+#Fazendo a divisão (treino: 0.70; teste: 0.30)
 
 set.seed(123)
 
