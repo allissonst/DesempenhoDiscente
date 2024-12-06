@@ -22,6 +22,23 @@ grupos_aval$cluster[grupos_aval$cluster==2]=0 #baixo desempenho passa a receber 
 
 dados$avalcluster = grupos_aval$cluster #Inputando uma nova coluna no df dados
 
+#Estatística descritiva geral
+
+summary(dados)
+sapply(dados, sd, na.rm = TRUE)
+
+#Estatística descritiva com base nos clusters
+
+#cluster 1 - Alto desempenho
+summary(dados[dados$avalcluster == 1,c(2, 4:6)])
+sapply(dados[dados$avalcluster  == 1, c(2, 4:6)], sd, na.rm = TRUE)
+sapply(dados[dados$avalcluster == 1, c(2, 4:6)], quantile, na.rm = TRUE)
+
+#cluster 0 - Baixo desempenho
+summary(dados[dados$avalcluster == 0,c(2, 4:6)])
+sapply(dados[dados$avalcluster == 0, c(2, 4:6)], sd, na.rm = TRUE)
+sapply(dados[dados$avalcluster == 0, c(2, 4:6)], quantile, na.rm = TRUE)
+
 #### MODELO LINEAR NORMAL #### 
 
 linear_normal <- lm(aval ~ eng + ime + des, data=dados)
@@ -48,6 +65,7 @@ teste$avalcluster=as.factor(teste$avalcluster)
 
 
 #### ANÁLISE DISCRIMINANTE LINEAR ####
+set.seed(123)
 adl = lda(avalcluster ~ eng + ime + des, 
           data=treinamento)
 
@@ -88,7 +106,7 @@ auc(adlrocobject)
 
 
 ### RANDOM FOREST ### 
-
+set.seed(123)
 ctrl=trainControl(method="cv",
                   number=10)
 
@@ -140,7 +158,7 @@ plot(varImp(FitRF))
 auc(RFrocobject)
 
 ### KNN ### 
-
+set.seed(123)
 ctrl=trainControl(method="repeatedcv",
                   number=10)
 
@@ -192,7 +210,7 @@ auc(KNNrocobject)
 
 
 ### NAIVE BAYES ### 
-
+set.seed(123)
 ctrl=trainControl(method="cv",
                   number=10)
 
@@ -247,7 +265,7 @@ auc(nbrocobject)
 
 
 ### LOGIT ### 
-
+set.seed(123)
 Fitlogit= train(
   avalcluster ~ eng + ime + des,
   method="glm",
@@ -295,7 +313,7 @@ auc(logitrocobject)
 plot(varImp(Fitlogit))
 
 ### SVM LINEAR ### 
-
+set.seed(123)
 svmfit=svm(avalcluster ~ eng + ime + des, 
            data=treinamento, 
            scale=T, 
@@ -397,13 +415,13 @@ barplot(valores_importancia,
         main = "Importance",
         #xlab = "Variáveis",
         #ylab = "Importância",
-        col = "steelblue",                  # Cor das barras
+        #col = "steelblue",                  # Cor das barras
         las = 2,                            # Rotacionar rótulos no eixo x (2 = vertical)
         cex.names = 1)   
 
 
 ### GRADIENT BOOSTING MACHINE ###
-
+set.seed(123)
 tc = trainControl(method = "cv", 
                   number=10)
 
