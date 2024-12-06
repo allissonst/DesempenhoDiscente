@@ -2,9 +2,10 @@
 
 Este repositório contém o código utilizado para gerar os resultados apresentados no trabalho acadêmico *Efeitos do Engajamento, Imersão e Desafio no Desempenho Discente*. Este trabalho foi desenvolvido no âmbito da disciplina de **Métodos Quantitativos em Administração II** do Programa de Pós-Graduação em Administração (PPGA) da Universidade Federal da Paraíba (UFPB), pelos discentes Allisson Silva dos Santos, Ana Caroline Salviano Ramos e Madiã Marcela Fernandes Vasconcelos.
 
-## 🎯 Objetivo do Trabalho
+## 🎯 Objetivos do Trabalho
 
-Analisar como o engajamento, a imersão e o desafio influenciam o desempenho acadêmico de estudantes do curso de Ciências Contábeis. Para isso, foram aplicados métodos estatísticos e de aprendizado de máquina a dados coletados por meio de questionários e avaliações acadêmicas.
+- Analisar como o engajamento, a imersão e o desafio se relacionam com o desempenho acadêmico de estudantes do curso de Ciências Contábeis de uma instituição de ensino superior. 
+- Identificar o modelo preditivo com melhor performance na predição do desempenho acadêmico de discentes. 
 
 ## 🛠️ Metodologia
 
