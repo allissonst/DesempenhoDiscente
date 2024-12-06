@@ -1,6 +1,6 @@
 # 📚 Desempenho Discente
 
-Este repositório contém o código utilizado para gerar os resultados apresentados no trabalho acadêmico *Efeitos do Engajamento, Imersão e Desafio no Desempenho Discente*. Este trabalho foi desenvolvido no âmbito da disciplina de **Métodos Quantitativos em Administração II** do Programa de Pós-Graduação em Administração (PPGA) da Universidade Federal da Paraíba (UFPB), pelos discentes Allisson Silva dos Santos, Ana Caroline Salviano Ramos e Madiã Marcela Fernandes Vasconcelos.
+Este repositório contém o código utilizado para gerar os resultados apresentados no trabalho *Efeitos do Engajamento, Imersão e Desafio no Desempenho Discente*. Este trabalho foi desenvolvido no âmbito da disciplina de **Métodos Quantitativos em Administração II** do Programa de Pós-Graduação em Administração (PPGA) da Universidade Federal da Paraíba (UFPB), pelos discentes Allisson Silva dos Santos, Ana Caroline Salviano Ramos e Madiã Marcela Fernandes Vasconcelos.
 
 ## 🎯 Objetivos do Trabalho
 
