@@ -20,5 +20,5 @@ Os dados foram analisados utilizando uma abordagem quantitativa e os seguintes m
   - 🛠️ Support Vector Machine (SVM);
   - 🧩 Bagging e Gradient Boosting Machine (GBM).
 
-As análises compararam a precisão preditiva dos modelos, avaliando métricas como sensibilidade, especificidade, acurácia e AUC.
+As análises compararam a contribuição das variáveis independentes na predição da variável dependente, além da precisão preditiva dos modelos, avaliando métricas como sensibilidade, especificidade, acurácia e AUC.
 
